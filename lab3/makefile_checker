@@ -1,0 +1,4 @@
+all: checker
+
+checker: checker.c
+	gcc -O2 -o checker checker.c -lm
