@@ -20,7 +20,6 @@ linked_list *map(linked_list *source_list, int (*function)(int)){
     list_add_back(&new_list, function(list_get(source_list, i)));
   }
   return new_list;
-
 }
 
 int foldl(int accumulator, int (*function)(int, int), linked_list *list){
@@ -87,6 +86,32 @@ int load(linked_list *list, char* filename){
 
 int serialize(linked_list *list, char* filename){
   FILE *file = fopen(filename, "wb");
+  if(file == NULL){
+    return 0;
+  }
+  int length = list_length(list);
+  int i;
+  for(i = 0; i < length; i++){
+    int element = list_get(list, i);
+    fwrite(&element, sizeof(int), 1, file);
+  }
+  fclose(file);
+  return 1;
+}
+
+int deserialize(linked_list *list, char *filename){
+  FILE *file = fopen(filename, "rb");
+  if(file == NULL){
+    return 0;
+  }
+  int length = list_length(list);
+  int i;
+  for(i = 0; i < length; i++){
+    int *address = &list_node_at(list, i)->value;
+    fread(address, sizeof(int), 1, file);
+  }
+  fclose(file);
+  return 1;
 }
 
 void print_spaces(int element){
@@ -125,6 +150,10 @@ int pow_two(int value){
   return value * 2;
 }
 
+int do_nothing(int value){
+  return value;
+}
+
 int main(){
   linked_list *list = NULL;
   int value;
@@ -143,8 +172,10 @@ int main(){
   foreach(list, print_new_line);
   linked_list *square_list = map(list, square);
   linked_list *cube_list = map(list, cube);
+  printf("%s", "Square elements: ");
   foreach(square_list, print_spaces);
   printf("\n");
+  printf("%s", "Cube elements: ");
   foreach(cube_list, print_spaces);
   printf("\n");
   // list_free(square_list);
@@ -152,12 +183,20 @@ int main(){
   printf("Sum of elements - %d\n", foldl(0, sum, list));
   printf("Max value - %d\n", foldl(INT_MIN, max, list));
   printf("Min value - %d\n", foldl(INT_MAX, min, list));
-  foreach(map_mut(list, abs), print_spaces);
-  printf("\n");
+  printf("%s", "Absolute values: ");
+  linked_list *copy_list = map(list, do_nothing);
+  foreach(map_mut(copy_list, abs), print_spaces);
+  printf("\nPowers of two: ");
   foreach(iterate(1, 10, pow_two), print_spaces);
   printf("\n");
   save(list, "list.txt");
   load(list, "list.txt");
+  printf("%s\n", "After loading from file");
   foreach(list, print_spaces);
+  serialize(list, "list.bin");
+  deserialize(list, "list.bin");
+  printf("\n%s\n", "After deserializing");
+  foreach(list, print_spaces);
+  printf("\n");
   return 0;
 }
