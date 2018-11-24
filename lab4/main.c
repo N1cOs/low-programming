@@ -178,8 +178,6 @@ int main(){
   printf("%s", "Cube elements: ");
   foreach(cube_list, print_spaces);
   printf("\n");
-  // list_free(square_list);
-  // list_free(cube_list);
   printf("Sum of elements - %d\n", foldl(0, sum, list));
   printf("Max value - %d\n", foldl(INT_MIN, max, list));
   printf("Min value - %d\n", foldl(INT_MAX, min, list));
@@ -198,5 +196,9 @@ int main(){
   printf("\n%s\n", "After deserializing");
   foreach(list, print_spaces);
   printf("\n");
+  list_free(list);
+  list_free(square_list);
+  list_free(cube_list);
+  list_free(copy_list);
   return 0;
 }

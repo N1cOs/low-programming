@@ -1,4 +1,7 @@
+.*
 *.o
 *.py
 *.txt
 *.bin
+out
+resources
