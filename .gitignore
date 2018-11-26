@@ -1,6 +1,6 @@
 .*
 *.o
-*.py
+test.*
 *.txt
 *.bin
 out
