@@ -28,9 +28,9 @@ read_status read_from_bmp(FILE *in, image *read_in){
  uint8_t padding_width = (4 - width * sizeof(pixel) % 4);
 
  //check header
- // if((width * height * sizeof(pixel) + BMP_OFFSET) != file_size){
- //   return READ_INVALID_HEADER;
- // }
+ if(((width * sizeof(pixel) + padding_width) * height  + BMP_OFFSET) != file_size){
+   return READ_INVALID_HEADER;
+ }
 
  //reading pixels
  uint32_t i;
@@ -98,7 +98,7 @@ write_status write_to_bmp(FILE *out, image *img){
   uint32_t zero_padding = 0;
   for(i = 0; i < img->height * (img->width + 1); i++){
     pixel *px = img->data + i;
-    px = ((uint8_t*) px) - zero_padding * (3 - padding);
+    px = (pixel*) (((uint8_t*) px) - zero_padding * (3 - padding));
     if((i + 1) % (img->width + 1) == 0){
       fwrite(px, 1, padding, out);
       zero_padding++;
@@ -127,7 +127,7 @@ image* rotate(image *source_image){
       new_px = (pixel*) ((uint8_t*) new_px + row * new_padding);
       memcpy(new_px, px, sizeof(pixel));
     }
-     uint8_t *zero_padding = ((uint8_t*)new_image->data) + new_image->width * sizeof(pixel) * (row + 1) + row * new_padding ;
+     uint8_t *zero_padding = ((uint8_t*)new_image->data) + new_image->width * sizeof(pixel) * (row + 1) + row * new_padding;
      uint8_t i;
      for(i = 0; i <= new_padding - 1; i++)
        *(zero_padding + i) = 0;
@@ -135,15 +135,38 @@ image* rotate(image *source_image){
   return new_image;
 }
 
-int main(){
-  FILE *penguin = fopen("../resources/penguin.bmp", "rb");
-  image *img = (image*) malloc(sizeof(image));
-  read_from_bmp(penguin, img);
-  fclose(penguin);
-  image* new_one = rotate(img);
+int main(int argc, char *argv[]){
 
-  FILE *new_penguin = fopen("../resources/new_penguin.bmp", "wb");
-  write_to_bmp(new_penguin, new_one);
-  fclose(new_penguin);
+  if(argc != 2){
+    puts("Wrong number of arguments");
+    exit(1);
+  }
+
+  FILE *file_image = fopen(argv[1], "rb");
+  if(!file_image){
+    puts("File does not exist");
+    exit(1);
+  }
+
+
+  image *img = (image*) malloc(sizeof(image));
+  read_status rd_status = read_from_bmp(file_image, img);
+  fclose(file_image);
+  if(rd_status == READ_INVALID_SIGNATURE){
+    puts("Invalid file's signature");
+    exit(1);
+  }
+  else if(rd_status == READ_INVALID_HEADER){
+    puts("Invalid bmp header");
+    exit(1);
+  }
+
+  image* new_one = rotate(img);
+  FILE *new_img = fopen(argv[1], "wb");
+  write_status wr_status = write_to_bmp(new_img, new_one);
+  fclose(new_img);
+  if(wr_status == WRITE_OK){
+    puts("Your image successfully rotated");
+  }
   return 0;
 }
