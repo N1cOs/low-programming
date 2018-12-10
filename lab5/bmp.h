@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <malloc.h>
+#include <string.h>
 #define BMP_CODE 0x4d42
 #define BMP_OFFSET 54
 
-typedef struct{
+typedef struct __attribute__((packed)){
   uint16_t type;
   uint32_t file_size;
   uint32_t reserved;

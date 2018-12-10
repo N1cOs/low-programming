@@ -187,12 +187,12 @@ int main(){
   printf("\nPowers of two: ");
   foreach(iterate(1, 10, pow_two), print_spaces);
   printf("\n");
-  save(list, "list.txt");
-  load(list, "list.txt");
+  save(list, "resources/list.txt");
+  load(list, "resources/list.txt");
   printf("%s\n", "After loading from file");
   foreach(list, print_spaces);
-  serialize(list, "list.bin");
-  deserialize(list, "list.bin");
+  serialize(list, "resources/list.bin");
+  deserialize(list, "resources/list.bin");
   printf("\n%s\n", "After deserializing");
   foreach(list, print_spaces);
   printf("\n");
