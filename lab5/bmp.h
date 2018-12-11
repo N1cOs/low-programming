@@ -3,6 +3,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
+#include <getopt.h>
 #define BMP_CODE 0x4d42
 #define BMP_OFFSET 54
 

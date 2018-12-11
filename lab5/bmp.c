@@ -137,17 +137,37 @@ image* rotate(image *source_image){
 
 int main(int argc, char *argv[]){
 
-  if(argc != 2){
-    puts("Wrong number of arguments");
-    exit(1);
-  }
+  struct option long_options[] = {
+    {"file", required_argument, NULL, 0},
+    {"rotation", optional_argument, NULL, 1},
+    {NULL, 0, NULL, 0}
+  };
+  int option_index;
+  char *file_name;
+  int angle = 90;
 
-  FILE *file_image = fopen(argv[1], "rb");
+  while(1){
+    int flag = getopt_long_only(argc, argv, "", long_options, &option_index);
+
+    if(flag == -1)
+      break;
+
+    switch(flag){
+      case 0:
+        file_name = optarg;
+        break;
+      case 1:
+        angle = atoi(optarg);
+        break;
+      default:
+        printf("%s\n", "Wrong arguments");
+    }
+  }
+  FILE *file_image = fopen(file_name, "rb");
   if(!file_image){
     puts("File does not exist");
     exit(1);
   }
-
 
   image *img = (image*) malloc(sizeof(image));
   read_status rd_status = read_from_bmp(file_image, img);
@@ -156,17 +176,22 @@ int main(int argc, char *argv[]){
     puts("Invalid file's signature");
     exit(1);
   }
-  else if(rd_status == READ_INVALID_HEADER){
-    puts("Invalid bmp header");
-    exit(1);
-  }
+  // else if(rd_status == READ_INVALID_HEADER){
+  //   puts("Invalid bmp header");
+  //   exit(1);
+  // }
 
-  image* new_one = rotate(img);
-  FILE *new_img = fopen(argv[1], "wb");
-  write_status wr_status = write_to_bmp(new_img, new_one);
-  fclose(new_img);
-  if(wr_status == WRITE_OK){
-    puts("Your image successfully rotated");
+  uint16_t i;
+  for(i = 0; i < ((angle / 90) % 4); i++){
+    FILE *file_image = fopen(file_name, "rb");
+    image *img = (image*) malloc(sizeof(image));
+    read_from_bmp(file_image, img);
+    fclose(file_image);
+    image *new_one = rotate(img);
+
+    FILE *new_img = fopen(file_name, "wb");
+    write_status wr_status = write_to_bmp(new_img, new_one);
+    fclose(new_img);
   }
   return 0;
 }
