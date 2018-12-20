@@ -1,6 +1,3 @@
-#include "stdio.h"
-#include "malloc.h"
-#include "limits.h"
 #include "list.h"
 
 void foreach(linked_list *list, void (*function)(int)){
@@ -13,7 +10,7 @@ void foreach(linked_list *list, void (*function)(int)){
 
 linked_list *map(linked_list *source_list, int (*function)(int)){
   int length = list_length(source_list);
-  linked_list* new_list = malloc(sizeof(linked_list));
+  linked_list* new_list = _malloc(sizeof(linked_list));
   new_list->value = function(list_get(source_list, 0));
   int i;
   for(i = 1; i < length; i++){
@@ -42,7 +39,7 @@ linked_list *map_mut(linked_list *list, int (*function)(int)){
 }
 
 linked_list *iterate(int initial_value, int length, int(*function)(int)){
-  linked_list* new_list = malloc(sizeof(linked_list));
+  linked_list* new_list = _malloc(sizeof(linked_list));
   new_list->value = initial_value;
   new_list->next_element = NULL;
   int i;
@@ -155,11 +152,12 @@ int do_nothing(int value){
 }
 
 int main(){
+  heap_init(1);
   linked_list *list = NULL;
   int value;
   while(scanf(" %d ", &value) != EOF){
     if(!list){
-      list = (linked_list*) malloc(sizeof(linked_list));
+      list = (linked_list*) _malloc(sizeof(linked_list));
       list->value = value;
     }
     else{
@@ -196,9 +194,9 @@ int main(){
   printf("\n%s\n", "After deserializing");
   foreach(list, print_spaces);
   printf("\n");
-  // list_free(list);
-  // list_free(square_list);
-  // list_free(cube_list);
-  // list_free(copy_list);
+//  list_free(list);
+//  list_free(square_list);
+//  list_free(cube_list);
+//  list_free(copy_list);
   return 0;
 }

@@ -1,5 +1,6 @@
 section .text
 global print_string
+global print_uint
 global exit
 
 exit:
