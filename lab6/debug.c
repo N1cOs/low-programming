@@ -5,7 +5,7 @@ void _malloc_debug_info( FILE *f, mem *address ) {
     fprintf( f,"start: %p\nsize: %lu\nis_free: %d\n", (void*)address, address-> capacity, address-> is_free );
     for ( i = 0;i <  DEBUG_FIRST_BYTES  &&  i <  address-> capacity; i++)
         fprintf( f, "%hhX",((uint8_t *)address)[ sizeof( mem ) + i ] );
-    putc( '\n', f );
+    fprintf(f, "\n\n");
 }
 
 void _malloc_debug_heap( FILE *f, mem *ptr ) {
@@ -29,7 +29,26 @@ int main(){
     for(int i = 0; i < 4000; i++){
         *(ptr_3 + i) = (i % 254 + 2);
     }
+
+    _malloc_debug_heap(debug_file, (mem*)(ptr - sizeof(mem)));
+    _free(ptr_2);
+    fprintf(debug_file, "\n%s\n\n", "after freeing memory");
+
+    uint8_t *ptr_4 = _malloc(20000);
+    for(int i = 0; i < 4000; i++){
+        *(ptr_4 + i) = (i % 253 + 3);
+    }
+    uint8_t *ptr_5 = _malloc(5000);
+    for(int i = 0; i < 4000; i++){
+        *(ptr_5 + i) = (i % 252 + 4);
+    }
+    _malloc(3000);
+
+    _free(ptr_5);
+    _free(ptr);
     _malloc_debug_heap(debug_file, (mem*)(ptr - sizeof(mem)));
     fclose(debug_file);
+//    int value = 0;
+//    scanf("%d", &value);
     return 0;
 }

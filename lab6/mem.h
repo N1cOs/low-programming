@@ -11,7 +11,7 @@
 #include <errno.h>
 
 #define  HEAP_START  ((void*)0x04040000)
-#define DEBUG_FIRST_BYTES 128
+#define DEBUG_FIRST_BYTES 32
 #define BLOCK_MIN_SIZE 32
 
 #pragma pack(push, 1)
@@ -23,7 +23,7 @@ typedef struct{
 #pragma pack(pop)
 
 void* _malloc(size_t query);
-void free(void *mem);
+void _free(void *mem);
 void* heap_init(size_t initial_size);
 
 #endif
