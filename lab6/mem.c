@@ -2,26 +2,33 @@
 
 static mem *start_block = NULL;
 
-uint32_t get_pages(size_t query) {
+/*returns an address of a new block*/
+mem *get_pages(mem *current_block, size_t query) {
     const int page_size = getpagesize();
     static uint32_t page_amount = 1;
 
-    size_t chunk_length = query / page_size + 1;
-    void *new_chunk = mmap((void *) start_block + page_size * page_amount, chunk_length * page_size,
-                           PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED | MAP_ANONYMOUS, 0, 0);
-    if (!new_chunk)
-        new_chunk = mmap(NULL, chunk_length, PROT_WRITE | PROT_READ, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
-    if (new_chunk) {
-        page_amount += chunk_length;
-        return chunk_length;
+    size_t needful_page_amount = (query + sizeof(mem) - current_block->capacity) / page_size + 1;
+    void *new_chunk = mmap((void *) start_block + page_size * page_amount, needful_page_amount * page_size,
+                          PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED | MAP_ANONYMOUS, 0, 0);
+    mem *new_block = NULL;
+    if (!new_chunk) {
+        needful_page_amount = (query + sizeof(mem)) / page_size + 1;
+        new_block = mmap(NULL, needful_page_amount * page_size,
+                PROT_WRITE | PROT_READ, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+        if(!new_block)
+            return NULL;
+        new_block->capacity = needful_page_amount * page_size;
     }
-    return -1;
+    else {
+        new_block = (mem *) (((uint8_t *) current_block) + query + sizeof(mem));
+        new_block->capacity = current_block->capacity + page_size * needful_page_amount - query - sizeof(mem);
+    }
 
+    page_amount += needful_page_amount;
+    return new_block;
 }
 
 void *_malloc(size_t query) {
-    const int page_size = getpagesize();
-
     if (query < BLOCK_MIN_SIZE)
         query = BLOCK_MIN_SIZE;
 
@@ -43,18 +50,18 @@ void *_malloc(size_t query) {
                 current_block->is_free = false;
 
                 return ((uint8_t *) current_block + sizeof(mem));
-            } else {
+            }
+            else {
                 if (current_block->next) {
                     while (current_block->next)
                         current_block = current_block->next;
                 }
-                uint32_t page_amount = get_pages(query + sizeof(mem) - current_block->capacity);
-                if (page_amount == -1)
+
+                mem *new_block = get_pages(current_block, query);
+                if(!new_block)
                     return NULL;
 
-                mem *new_block = (mem *) (((uint8_t *) current_block) + query + sizeof(mem));
                 new_block->next = NULL;
-                new_block->capacity = current_block->capacity + page_size * page_amount - query - sizeof(mem);
                 new_block->is_free = true;
 
                 current_block->next = new_block;
@@ -63,7 +70,8 @@ void *_malloc(size_t query) {
 
                 return ((uint8_t *) current_block + sizeof(mem));
             }
-        } else {
+        }
+        else {
             current_block = current_block->next;
         }
     }
@@ -84,15 +92,17 @@ void _free(void *address) {
 void *heap_init(size_t init_size) {
     const int page_size = getpagesize();
 
-    size_t chunk_length = init_size / page_size + 1;
-    void *ptr = mmap(HEAP_START, chunk_length * page_size, PROT_READ | PROT_WRITE,
+    size_t needful_page_amount = init_size / page_size + 1;
+    start_block = mmap(HEAP_START, needful_page_amount * page_size, PROT_READ | PROT_WRITE,
                      MAP_SHARED | MAP_FIXED | MAP_ANONYMOUS, 0, 0);
-    if (!ptr)
-        return ptr;
+    if (!start_block)
+        start_block = mmap(NULL, needful_page_amount * page_size, PROT_READ | PROT_WRITE,
+                   MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+    if(!start_block)
+        return NULL;
 
-    start_block = (mem *) ptr;
     start_block->next = NULL;
-    start_block->capacity = page_size - sizeof(mem);
+    start_block->capacity = page_size * needful_page_amount - sizeof(mem);
     start_block->is_free = true;
     return start_block + sizeof(mem);
 }
