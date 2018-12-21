@@ -14,7 +14,7 @@ void _malloc_debug_heap( FILE *f, mem *ptr ) {
 }
 
 int main(){
-    FILE *debug_file = fopen("/home/nick/Documents/LowProgramming/test_project/lab6/test.txt", "w");
+    FILE *debug_file = fopen("resources/test.txt", "w");
     heap_init(100);
 
     uint8_t *ptr = _malloc(5000);
@@ -31,8 +31,8 @@ int main(){
     }
 
     _malloc_debug_heap(debug_file, (mem*)(ptr - sizeof(mem)));
-    _free(ptr_2);
     fprintf(debug_file, "\n%s\n\n", "after freeing memory");
+    _free(ptr_2);
 
     uint8_t *ptr_4 = _malloc(20000);
     for(int i = 0; i < 4000; i++){
