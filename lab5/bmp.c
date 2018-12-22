@@ -143,7 +143,7 @@ int main(int argc, char *argv[]){
     {NULL, 0, NULL, 0}
   };
   int option_index;
-  char *file_name;
+  char *file_name = NULL;
   int angle = 90;
 
   while(1){
@@ -176,10 +176,10 @@ int main(int argc, char *argv[]){
     puts("Invalid file's signature");
     exit(1);
   }
-  // else if(rd_status == READ_INVALID_HEADER){
-  //   puts("Invalid bmp header");
-  //   exit(1);
-  // }
+  else if(rd_status == READ_INVALID_HEADER){
+    puts("Invalid bmp header");
+    exit(1);
+  }
 
   uint16_t i;
   for(i = 0; i < ((angle / 90) % 4); i++){

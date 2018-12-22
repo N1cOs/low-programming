@@ -84,10 +84,11 @@ void *_malloc(size_t query) {
 void _free(void *address) {
     mem *block = address - sizeof(mem);
     mem *next_block = block->next;
-    if (next_block && next_block->is_free) {
-        block->capacity += next_block->capacity;
-        block->next = next_block->next;
+    while(next_block && next_block->is_free){
+      block->capacity += next_block->capacity;
+      next_block = next_block->next;
     }
+    block->next = next_block;
     block->is_free = true;
 }
 
@@ -110,4 +111,3 @@ void *heap_init(size_t init_size) {
 
     return start_block + sizeof(mem);
 }
-

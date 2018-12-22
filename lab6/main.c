@@ -194,9 +194,5 @@ int main(){
   printf("\n%s\n", "After deserializing");
   foreach(list, print_spaces);
   printf("\n");
-//  list_free(list);
-//  list_free(square_list);
-//  list_free(cube_list);
-//  list_free(copy_list);
   return 0;
 }

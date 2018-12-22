@@ -25,7 +25,7 @@ void list_add_back(linked_list **list, int value){
 void list_free(linked_list *list){
   linked_list *element = list;
   while(element){
-    free(element);
+    _free(element);
     element = element->next_element;
   }
 }
