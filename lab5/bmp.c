@@ -25,7 +25,7 @@ read_status read_from_bmp(FILE *in, image *read_in){
  read_in->height = height;
 
  //width's length in bytes = width * sizeof(pixel) + padding_width
- uint8_t padding_width = (4 - width * sizeof(pixel) % 4);
+ uint8_t padding_width = (4 - width * sizeof(pixel) % 4) % 4;
 
  //check header
  if(((width * sizeof(pixel) + padding_width) * height  + BMP_OFFSET) != file_size){
@@ -52,7 +52,7 @@ read_status read_from_bmp(FILE *in, image *read_in){
 
 BMPHeader * get_bmp_header(image *img){
   BMPHeader *header = (BMPHeader*) malloc(sizeof(BMPHeader));
-  uint8_t padding = (4 - img->width * sizeof(pixel) % 4);
+  uint8_t padding = (4 - img->width * sizeof(pixel) % 4) % 4;
 
   //writing bmp code
   header->type = BMP_CODE;
@@ -92,7 +92,7 @@ write_status write_to_bmp(FILE *out, image *img){
   BMPHeader *header = get_bmp_header(img);
   fwrite(header, sizeof(BMPHeader), 1, out);
 
-  uint8_t padding = (4 - img->width * sizeof(pixel) % 4);
+  uint8_t padding = (4 - img->width * sizeof(pixel) % 4) % 4;
   //writing pixels
   uint64_t i;
   uint32_t zero_padding = 0;
@@ -115,7 +115,7 @@ image* rotate(image *source_image){
   new_image->width = source_image->height;
   new_image->height = source_image->width;
 
-  uint8_t new_padding =  (4 - new_image->width * sizeof(pixel) % 4);
+  uint8_t new_padding = (4 - new_image->width * sizeof(pixel) % 4) % 4;
   new_image->data = (pixel*) malloc((new_image->width * sizeof(pixel) + new_padding) * new_image->height);
 
   uint32_t row;
