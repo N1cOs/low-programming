@@ -40,6 +40,7 @@ typedef struct {
 typedef enum read_status {
     READ_OK = 0,
     READ_INVALID_SIGNATURE,
+    READ_INVALID_HEADER
 } read_status;
 
 typedef enum write_status {
