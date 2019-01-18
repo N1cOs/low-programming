@@ -42,6 +42,18 @@ void *split_block(mem *current_block, mem *new_block, size_t query) {
     return ((void*) current_block + sizeof(mem));
 }
 
+void *_calloc(size_t nmemb, size_t size){
+  if(nmemb == 0 || size == 0){
+    return NULL;
+  }
+
+  FILE *in = fopen("/dev/zero", "r+b");
+  int file_descriptor = fileno(in);
+  uint8_t *ptr = mmap(NULL, nmemb*size, PROT_READ | PROT_WRITE, MAP_SHARED, file_descriptor, 0);
+  fclose(in);
+  return ptr;
+}
+
 void *_malloc(size_t query) {
     if (query < BLOCK_MIN_SIZE)
         query = BLOCK_MIN_SIZE;
